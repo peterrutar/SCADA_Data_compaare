@@ -1,0 +1,29 @@
+#include "apdefap.h"
+void OnClick(char* lpszPictureName, char* lpszObjectName, char* lpszPropertyName)
+{
+WORD tag,value;
+BYTE bit;
+
+// Set the Variables
+	// SET witch BIT to be Set in Word
+	bit = 4; // 				<---EDIT
+
+	// GET Current Value from Tag
+	tag = GetTagWordWait(".CMD");	// 	<---EDIT
+
+	// Set the value for Or operation
+	value = pow(2,bit);
+
+// Uncomment the prefered function 		                <---EDIT
+	//  SET BIT Function
+	//tag = tag | value;
+
+	// RESET BIT Function
+	//tag = tag & ~(value);
+
+	// INVERT BIT Function
+	tag = tag ^ value;
+
+// Change the Tag name
+SetTagWord(".CMD",tag);	//			<---EDIT
+}

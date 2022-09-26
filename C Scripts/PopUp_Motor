@@ -1,0 +1,58 @@
+void MotorPopUp(char* pic, char* obj){
+    // Variables
+    LINKINFO fplink;
+    char* pname = NULL;
+    char* pcomment = NULL;
+    char name[_MAX_PATH+1];
+    char comment[_MAX_PATH+1];
+
+    // Get Data From FP
+    GetLink(pic, obj, "Motor", &fplink);				//"" -> Property Name
+    pname = GetPropChar(pic,obj,"Name");
+    if(pname != NULL){
+        //Copy the string
+        strncpy(name,pname,_MAX_PATH);
+        }
+
+    // Set Name and Comment
+    fplink.Name = name;
+
+    // Check Open PopUps
+    if (!(GetPropBOOL(pic,"PopUp_Settings_1","Visible"))){	
+        SetPropChar(pic,"PopUp_Settings_1","TagPrefix",fplink.szLinkName);
+        SetOutputValueChar("Motor_PopUp\\Motor_Settings.PDL","Name","666");	//Return-Type: BOOL 
+        //SetPropChar("PopUp_Settings_1","Name","OutputValue","666");	//Return-Type: BOOL 
+        SetPictureName(pic,"PopUp_Settings_1","Motor_PopUp\\Motor_Settings.PDL");
+        SetPropBOOL(pic,"PopUp_Settings_1","Visible",TRUE);	//Return-Type: BOOL
+        } 
+    else if (!(GetPropBOOL(pic,"PopUp_Settings_2","Visible"))){	
+        SetPropChar(pic,"PopUp_Settings_2","TagPrefix",fplink.szLinkName);
+        SetPictureName(pic,"PopUp_Settings_2","Motor_PopUp\\Motor_Settings.PDL");
+        SetPropBOOL(pic,"PopUp_Settings_2","Visible",TRUE);	//Return-Type: BOOL
+        } 
+}
+
+
+void OnAcquisitionClick(char* screenName, char* objectName){
+
+	LINKINFO lplink;
+      char *actorElement;	
+	
+	//Get the name of the current interface for the actor element and assign it to the TagPrefix
+	////GetLink(screenName, objectName, "EnO_Name", &lplink);
+	////SetPropChar(screenName,"EnS_ScreenWindow","TagPrefix",GetTagChar(lplink.szLinkName));	
+	GetLink(screenName, objectName, "EnS_typeEnergyMeta", &lplink);
+	actorElement = lplink.szLinkName;
+	strcat(actorElement, ".name");
+    
+	SetPropChar(screenName,"EnS_ScreenWindow","TagPrefix",GetTagChar(actorElement));
+
+	//Check the name of the assigned TagPrefix --> This command can be removed
+	SetTagChar("TagPrefix", GetTagChar(actorElement));
+	printf("TagName TagPrefix = %s\r\n", GetTagChar("TagPrefix"));
+	//end
+
+	SetPropChar(screenName,"EnS_ScreenWindow","ScreenName","EnS_EnergyDataBasic");
+	SetPropBOOL(screenName,"EnS_ScreenWindow","Visible",TRUE);
+
+}

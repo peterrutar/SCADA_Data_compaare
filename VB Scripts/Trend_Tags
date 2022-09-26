@@ -1,0 +1,19 @@
+Sub OnClick(Byval Item)                                 
+
+Dim objTrend
+Set objTrend = HMIRuntime.ActiveScreen.ScreenItems("Trend")
+
+objTrend.TrendIndex = 0
+'objTrend.TrendTagName = "Motor_Siemens_1.CURRENT_PV"
+objTrend.TrendTagName = "Motor_Siemens\Motor_Siemens_2.HMI_SPEED_SP"'"Motor_Siemens\"& Parent.Prefix &".HMI_SPEED_SP"
+'Motor_Siemens\Motor_Siemens_2.HMI_SPEED_SP
+
+objTrend.TrendIndex = 1
+objTrend.TrendTagName = "Motor_Siemens_1.TORQUE_PV"
+
+objTrend.TrendIndex = 2
+objTrend.TrendTagName = "Motor_Siemens_1.POWER_PV"
+
+'ScreenItems.Item("EnO_TrendviewActual").TimeAxisTimeRangeFactor = Fix(HMIRuntime.Tags("@NOTP::" & ControlDataPrefix & "_orgData.periodTime").Read)
+'over = SmartTags(".settingsHMI_overwrite")
+End Sub

@@ -1,0 +1,5 @@
+Sub OnClick(ByVal Item) 
+
+HMIRuntime.ActiveScreen.PictureName = "Motor_Siemens_PopUp\Motor_Siemens_Settings_2"
+
+End Sub

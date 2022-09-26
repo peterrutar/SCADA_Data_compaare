@@ -1,0 +1,8 @@
+Sub OnClick(Byval Item)  
+
+set command directly
+		Dim cmd
+		cmd = SmartTags(".settingsHMI_cmd")
+		SmartTags(".settingsHMI_cmd") = cmd Or 2^nBit
+
+End Sub

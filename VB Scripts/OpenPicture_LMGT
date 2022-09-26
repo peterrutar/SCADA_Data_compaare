@@ -1,0 +1,230 @@
+Sub OnOpen()                                  
+
+'====================================================================================================
+'=== Initialize variables ===========================================================================
+'====================================================================================================
+Dim ControlDataPrefix
+
+'Read the general data prefix
+ControlDataPrefix = HMIRuntime.Tags("@NOTP::ControlPrefix").Read
+
+HMIRuntime.Trace("ControlDataPrefix: " & ControlDataPrefix & vbCrLf)
+
+'Generate the name of the variable for the units
+HMIRuntime.Tags("@NOTP::ActorEnergyUnit").Write  ControlDataPrefix & ".visualization_unitEnergy"
+
+'====================================================================================================
+'=== Connect trend variable =========================================================================
+'====================================================================================================
+
+Dim ActorPowerTimeSelection
+
+'Read the time selection value
+ActorPowerTimeSelection = HMIRuntime.Tags("@NOTP::ActorPowerTimeSelection").Read
+
+'Set the new time range
+ScreenItems.Item("EnO_TrendviewActual").TimeAxisTimeRangeFactor = Fix(HMIRuntime.Tags("@NOTP::" & ControlDataPrefix & ".orgData_periodTime").Read)
+ScreenItems.Item("EnO_TrendviewActual").TrendIndex = 0
+ScreenItems.Item("EnO_TrendviewActual").TrendProvider = 2
+ScreenItems.Item("EnO_TrendviewActual").TrendTagName = ScreenItems.Item("EnO_Layout_name").Parent.Parent.Tagprefix & ".status_actPower"
+
+'0 = 1 min
+If (ActorPowerTimeSelection = 0) Then
+	ScreenItems.Item("EnO_TrendviewActual").TimeAxisTimeRangeFactor = 60
+	
+'1 = 3 min
+ElseIf (ActorPowerTimeSelection = 1) Then
+	ScreenItems.Item("EnO_TrendviewActual").TimeAxisTimeRangeFactor = 180
+	
+'2 = period time
+ElseIf (ActorPowerTimeSelection = 2) Then
+	ScreenItems.Item("EnO_TrendviewActual").TimeAxisTimeRangeFactor = Fix(HMIRuntime.Tags("@NOTP::" & ControlDataPrefix & ".orgData_periodTime").Read)
+End If
+
+'====================================================================================================
+'=== Calculate the gauge ============================================================================
+'====================================================================================================
+
+Dim ParameterMode
+Dim ActualValue
+Dim MaxValue, MinValue, AngleGauge, MaxValueGauge
+
+'Read the parameter mode
+ParameterMode = HMIRuntime.Tags(".parameter_parameterSet").Read
+
+'Read the limit value
+If (ParameterMode = 1) Then
+	MaxValue = HMIRuntime.Tags(".parameter_parameterSet_1_typicalPower").Read
+	MinValue = HMIRuntime.Tags(".parameter_parameterSet_1_standbyPower").Read
+Else
+	MaxValue = HMIRuntime.Tags(".parameter_parameterSet_2_typicalPower").Read
+	MinValue = HMIRuntime.Tags(".parameter_parameterSet_2_standbyPower").Read
+End If
+
+'Read the actual value
+ActualValue = HMIRuntime.Tags(".status_actPower").Read
+
+'Calculate the angle of the gauge
+AngleGauge = Fix((180 * (ActualValue - MinValue)) / (MaxValue - MinValue))
+
+'Calculate the max value of the gauge
+MaxValueGauge = Fix((MaxValue * 270) / 180)
+
+MaxValueGauge = MaxValueGauge - (MaxValueGauge Mod 10)
+
+'If the angle is bigger than 135, set the maximum to 135 and display an arrow
+'to signal, that the limit is out of displayable range
+If (AngleGauge > 270) Then	
+	
+	'Set the end angle to maximum
+	ScreenItems.Item("Circle segment_ActualPower").EndAngle = 135
+	ScreenItems.Item("Circle segment_ActualPower").Visible = 1
+
+	'Set the visibility of the arrows
+	ScreenItems.Item("Arrow_ActualPower_Higher").Visible = 1
+	ScreenItems.Item("Arrow_ActualPower_Lower").Visible = 0
+	
+ElseIf (AngleGauge < 0) Then
+	
+	'Set the end angle to minimum
+	ScreenItems.Item("Circle segment_ActualPower").Visible = 0
+
+	'Set the visibility of the arrows
+	ScreenItems.Item("Arrow_ActualPower_Higher").Visible = 0
+	ScreenItems.Item("Arrow_ActualPower_Lower").Visible = 1
+Else
+	'Set the visibility of the arrows
+	ScreenItems.Item("Arrow_ActualPower_Higher").Visible = 0
+	ScreenItems.Item("Arrow_ActualPower_Lower").Visible = 0
+	ScreenItems.Item("Circle segment_ActualPower").Visible = 1
+	
+	'Check if the angle is bigger 135, than it is on the right side
+	If (AngleGauge >= 135) Then
+	
+		'Set the end angle to minimum
+		ScreenItems.Item("Circle segment_ActualPower").EndAngle = AngleGauge - 135
+		
+	'If it's 0, disable the gauge
+	ElseIf (AngleGauge = 0) Then
+	
+		'Set the end angle to minimum
+		ScreenItems.Item("Circle segment_ActualPower").Visible = 0
+		
+	'Check if the angle is smaller 135, than it is on the left side
+	Else
+	
+		'Set the end angle to minimum
+		ScreenItems.Item("Circle segment_ActualPower").EndAngle = 225 + AngleGauge
+	End If
+End If
+
+'====================================================================================================
+'=== Set the connection status dependends ===========================================================
+'====================================================================================================
+
+Dim ConnectionStatus
+Dim ActorType
+
+'Read the variable values
+ConnectionStatus = HMIRuntime.Tags(".status_connectionStatus").Read
+ActorType = HMIRuntime.Tags(".metaData_actorType").Read
+
+'0 = actor is in default status ==> De-escalated
+If (ConnectionStatus = 0) Then
+	
+	'Set the visibility of the escalation energy field to true
+	ScreenItems.Item("I/O_EscalationEnergy").Visible = 1
+	ScreenItems.Item("I/O_DeescalationEnergy").Visible = 0
+	
+	'Depending of the actor is consumer or producer, it is on or off
+	If (ActorType = 1) Then
+		ScreenItems.Item("Txt_Status").Text = "On - de-escalated"
+		ScreenItems.Item("I/O_ConnectTime").ForeColor = RGB(0, 0, 0)
+		ScreenItems.Item("I/O_DisconnectTime").ForeColor = RGB(218, 220, 224)
+		HMIRuntime.Tags("@NOTP::ActorPotentialDirection").Write  2
+	ElseIf (ActorType = 2) Then
+		ScreenItems.Item("Txt_Status").Text = "Off - de-escalated"
+		ScreenItems.Item("I/O_ConnectTime").ForeColor = RGB(218, 220, 224)
+		ScreenItems.Item("I/O_DisconnectTime").ForeColor = RGB(0, 0, 0)
+		HMIRuntime.Tags("@NOTP::ActorPotentialDirection").Write  0
+	End If
+
+'15 (16#0F) = consumer is off ==> Escalated
+ElseIf (ConnectionStatus = 15) Then
+	ScreenItems.Item("Txt_Status").Text = "Off - escalated"
+	ScreenItems.Item("I/O_EscalationEnergy").Visible = 0
+	ScreenItems.Item("I/O_DeescalationEnergy").Visible = 1
+	ScreenItems.Item("I/O_ConnectTime").ForeColor = RGB(218, 220, 224)
+	ScreenItems.Item("I/O_DisconnectTime").ForeColor = RGB(0, 0, 0)
+	HMIRuntime.Tags("@NOTP::ActorPotentialDirection").Write  1
+
+'16 (16#10) = producer is on ==> Escalated
+ElseIf (ConnectionStatus = 16) Then
+	ScreenItems.Item("Txt_Status").Text = "On - escalated"
+	ScreenItems.Item("I/O_EscalationEnergy").Visible = 0
+	ScreenItems.Item("I/O_DeescalationEnergy").Visible = 1
+	ScreenItems.Item("I/O_ConnectTime").ForeColor = RGB(0, 0, 0)
+	ScreenItems.Item("I/O_DisconnectTime").ForeColor = RGB(218, 220, 224)
+	HMIRuntime.Tags("@NOTP::ActorPotentialDirection").Write  3
+End If
+
+'====================================================================================================
+'=== Time bar graph =================================================================================
+'====================================================================================================
+
+Dim TimeSelection
+Dim CurrentPeriodTime, RemainingPeriodTime, PeriodTime
+Dim Minutes, Seconds
+
+'Connect the variables of the time
+HMIRuntime.Tags("@NOTP::GeneralDataPeriodTime").Write ControlDataPrefix & ".orgData_periodTime"
+HMIRuntime.Tags("@NOTP::GeneralDataCurrentTime").Write ControlDataPrefix & ".orgData_currentPeriodTime"
+
+'Get the selected display type
+'0 = Current period time
+'1 = Remaining period time
+TimeSelection = HMIRuntime.Tags("@NOTP::ActorTimeSelection").Read
+	
+'Read the period time information
+CurrentPeriodTime = Fix(HMIRuntime.Tags("@NOTP::" & ControlDataPrefix & ".orgData_currentPeriodTime").Read)
+RemainingPeriodTime = Fix(HMIRuntime.Tags("@NOTP::" & ControlDataPrefix & ".orgData_remainingPeriodTime").Read)
+PeriodTime = Fix(HMIRuntime.Tags("@NOTP::" & ControlDataPrefix & ".orgData_periodTime").Read)
+
+'Current period time is selected
+If (TimeSelection = 0) Then
+	
+	'Calculate the minutes and seconds for current period time
+	Minutes = Fix(CurrentPeriodTime / 60)
+	Seconds = CurrentPeriodTime Mod 60
+
+'Remaining period time is selected
+Else
+	'Calculate the minutes and seconds for current period time
+	Minutes = Fix(RemainingPeriodTime / 60)
+	Seconds = RemainingPeriodTime Mod 60
+End If
+	
+'Set the text
+'If the seconds are less 10, add a 0
+If (Seconds < 10) Then
+	ScreenItems.Item("Txt_CurrentPeriodTime").Text = Minutes & ":0" & Seconds & " min"
+Else
+	ScreenItems.Item("Txt_CurrentPeriodTime").Text = Minutes & ":" & Seconds & " min"
+End If
+
+'Calculate the period time in minutes and seconds
+Minutes = Fix(PeriodTime / 60)
+Seconds = PeriodTime Mod 60
+
+'If the seconds are less 10, add a 0
+If (Seconds < 10) Then
+	ScreenItems.Item("Txt_PeriodTime").Text = Minutes & ":0" & Seconds & " min"
+Else
+	ScreenItems.Item("Txt_PeriodTime").Text = Minutes & ":" & Seconds & " min"
+End If
+	
+'Set the length of the rectangle, which displays the progress
+'of the current period time
+ScreenItems.Item("Rect_CurrentPeriodTime").Width = Fix((ScreenItems.Item("Rect_PeriodTime_Background").Width * CurrentPeriodTime) / PeriodTime)
+
+End Sub

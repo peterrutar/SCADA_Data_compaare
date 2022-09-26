@@ -1,0 +1,47 @@
+Sub OnClick(ByVal Item)                   
+
+'Tab screens visibility. Default "Motor_Sett_1" = True
+ScreenItems("Settings_1").Visible = False
+ScreenItems("Settings_2").Visible = True
+ScreenItems("Settings_3").Visible = False
+
+'Tab Button color. Default "Tab_Overlay_Grey_Home" = True
+ScreenItems("Tab_Home").Visible = False
+ScreenItems("Tab_Settings").Visible = True
+ScreenItems("Tab_Alarm").Visible = False
+        
+'Screen Width. Default = 400
+Width = 400
+
+'Home Tab
+ScreenItems("Button_Home").Left = 5
+ScreenItems("Tab_Home").Left = ScreenItems("Button_Home").Left
+ScreenItems("Button_Home").Width = 130
+ScreenItems("Tab_Home").Width = ScreenItems("Button_Home").Width
+ScreenItems("Icon_Home").Left = 50
+
+'Settings Tab
+ScreenItems("Button_Settings").Left = 135
+ScreenItems("Tab_Settings").Left = ScreenItems("Button_Settings").Left
+ScreenItems("Button_Settings").Width = 130
+ScreenItems("Tab_Settings").Width = ScreenItems("Button_Settings").Width
+ScreenItems("Icon_Settings").Left = 180
+
+'Alarm Tab
+ScreenItems("Button_Alarm").Left = 265
+ScreenItems("Tab_Alarm").Left = ScreenItems("Button_Alarm").Left
+ScreenItems("Button_Alarm").Width = 130
+ScreenItems("Tab_Alarm").Width = ScreenItems("Button_Alarm").Width
+ScreenItems("Icon_Alarm").Left = 310
+
+'Screen Items just for width expanding/shirnking
+ScreenItems("Background_1st").Width = 400
+ScreenItems("Background_2nd").Width = 390
+ScreenItems("Tab_Fix").Width = ScreenItems("Background_2nd").Width
+ScreenItems("Header_1").Left = 275
+ScreenItems("Header_2").Left = 280
+ScreenItems("Header_3").Left = 340
+ScreenItems("Header_4").Left = 335
+ScreenItems("Icon_Close").Left = 350
+
+End Sub

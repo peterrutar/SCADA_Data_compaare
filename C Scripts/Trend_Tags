@@ -1,0 +1,28 @@
+#include "apdefap.h"
+void OnClick(char* lpszPictureName, char* lpszObjectName, char* lpszPropertyName)
+{
+// Define Variables
+char* Prefix = SysMalloc(80);
+char* Middle = SysMalloc(40);
+char* Suffix = SysMalloc(40);
+
+// Define Process value Arhive
+strcpy (Prefix, "AI\\");  //<---EDIT
+
+// Get Prefix From tag "Name"
+strcpy (Middle, GetTagChar(".Name"));
+
+// Define Suffix to show on trend
+strcpy (Suffix, ".PV"); //<---EDIT
+
+// Construct Variable for Trend View
+strncat(Prefix, Middle, 80);
+strncat(Prefix, Suffix, 80);
+
+// Set Trend View parameters
+SetPropChar(lpszPictureName,"Trend","TrendIndex","0");
+SetPropChar(lpszPictureName,"Trend","TrendTagName",Prefix);
+SetPropChar(lpszPictureName,"Trend","TrendVisible","True");
+
+SetPropChar(lpszPictureName,"txt","Text",Prefix);
+}

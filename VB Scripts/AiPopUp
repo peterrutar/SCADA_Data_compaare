@@ -1,0 +1,28 @@
+Sub AiPopUp (Byval prefix)
+
+'Variable
+Dim i, j
+
+'Check Which PopUp is NOT Open
+For i = 1 To 5
+	If(ScreenItems("PopUp_Settings_" & i).Visible = False) Then
+		'Check if PopUp for this Faceplate is allready open elsewhere
+		For j = (i-1) To 1 Step -1
+			If (ScreenItems("PopUp_Settings_" & j).TagPrefix = prefix) Then				
+			'Exit funct because popup is allready open
+			Exit Sub
+			End If	
+		Next
+		'Define Picture Name -> from funct parameter
+		ScreenItems("PopUp_Settings_" & i).PictureName = "AI_PopUp\AI_Settings"
+		'Define Picture Tag prefix -> from funct parameter
+		ScreenItems("PopUp_Settings_" & i).TagPrefix = prefix 		
+		'Set Visibility of PopUp
+		ScreenItems("PopUp_Settings_" & i).Visible = True
+
+		'HMIRuntime.Tags(prefix & ".TagName").Write prefix	
+		Exit Sub
+	End If
+Next
+
+End Sub
