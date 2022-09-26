@@ -132,7 +132,7 @@ Sub Compare()
     Next i
     
     'comment*
-    'CheckNumOfMergedTags
+    CheckNumOfMergedTags
     
     'close the opened workbooks
     wbOld.Close
@@ -217,8 +217,6 @@ For i = 1 To lastRow
         'function for compare created aray of old tag with new data base
         CheckBothParameters oldTag:=oldTag, newTag:=newTag 'define the old tag array
                 
-        'jump to next tag
-        'Exit For
     End If
 Next i
 
@@ -272,6 +270,7 @@ Function CheckBothParameters(ByRef oldTag() As String, ByRef newTag() As String)
         
         wsResult.Cells(y, x) = z    'old tag
         wsResult.Cells(y + 1, x) = z 'new tag
+
         For j = 1 To UBound(oldTag)
             wsResult.Cells(y, x + j) = oldTag(j)   'old tag
             wsResult.Cells(y + 1, x + j) = newTag(j) 'new tag
@@ -338,7 +337,7 @@ For i = 1 To lastRow
             wsResult.Cells(y, x + 2) = "?"  'old tag
             wsResult.Cells(y + 1, x + 2) = wsNew.Cells(i, 1).Value 'new tag
 
-            'definiraj string za shranjevanje parametrov
+            'define string to store parameters
             Dim paramTest() As Integer
             ReDim paramTest(1 To 8) As Integer
 
@@ -392,9 +391,6 @@ lastRow = (ActiveSheet.Cells(Rows.Count, 2).End(xlUp).Row) + 1    'column "2" to
 If lastRow <= 13 Then
     MsgBox "Table Empty"
 End If
-
-'ActiveSheet.Cells(9, 2).Delete
-'ActiveSheet.Cells(10, 2).Delete
 
 Do While lastRow >= 13  'preskakuje vrstice
     For i = 13 To lastRow 'define the data start row

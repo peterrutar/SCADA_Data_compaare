@@ -68,13 +68,13 @@ Sub Compare()
     'define column/row for NOK tag log
     x = 1  'column
     y = 13   'row
-    z = 1   'start log num # (do not change)
+    z = 1   'tag num # (do not change)
     redColor = RGB(255, 0, 0)   'red color
     yelColor = RGB(255, 255, 0) 'yellow color
     bluColor = RGB(102, 178, 255)   'blue color
     
     'old data
-    For i = 30 To lastRow
+    For i = 1 To lastRow
         cellValue = wsOld.Cells(i, 1).Value
         
         'If cell is not empty and does not contain forbiden words
@@ -84,19 +84,18 @@ Sub Compare()
             For j = (i + 1) To lastRow
                 'check if next tag is the same as primary
                 Dim sameVar: sameVar = StrComp((wsOld.Cells(j, 1).Value), cellValue, 1)
-                Dim stringTest As Integer: stringTest = StrComp(wsOld.Cells(j, 1), "Tag Management", 1)
                 
-                If (IsEmpty(wsOld.Cells(j, 1)) = False) And sameVar <> 0 And stringTest <> 0 Then
+                If (IsEmpty(wsOld.Cells(j, 1)) = False) And sameVar <> 0 Then
                     nextRow = wsOld.Cells(j, 1).Row
                 Exit For
                 End If
             Next j
             
-            'define string for storing parameters
+            'define string for soring parameters
             Dim oldTag() As String
-            ReDim oldTag(1 To 9) As String
+            ReDim oldTag(1 To 17) As String
             Dim paramTest() As Integer
-            ReDim paramTest(1 To 7) As Integer
+            ReDim paramTest(1 To 19) As Integer
     
             'save row position and tag name
             oldTag(1) = wsOld.Cells(i, 1).Row
@@ -105,19 +104,59 @@ Sub Compare()
             'Check for wanted parameters
             For k = i To j - 1
                 'define parameters
-                paramTest(1) = StrComp((wsOld.Cells(k, 2).Value), "Data Type", 1)
-                paramTest(2) = StrComp((wsOld.Cells(k, 2).Value), "Group", 1)
-                paramTest(3) = StrComp((wsOld.Cells(k, 2).Value), "Parameters", 1)
-                paramTest(4) = StrComp((wsOld.Cells(k, 2).Value), "Connection", 1)
-                paramTest(5) = StrComp((wsOld.Cells(k, 2).Value), "Channel", 1)
-                paramTest(6) = StrComp((wsOld.Cells(k, 2).Value), "Channel unit", 1)
-                paramTest(7) = StrComp((wsOld.Cells(k, 2).Value), "Unit", 1)
+                paramTest(1) = StrComp((wsOld.Cells(k, 2).Value), "Class", 1)
+                paramTest(2) = StrComp((wsOld.Cells(k, 2).Value), "Type", 1)
+                paramTest(3) = StrComp((wsOld.Cells(k, 2).Value), "Priority", 1)
+                paramTest(4) = StrComp((wsOld.Cells(k, 2).Value), "Requires acknowledgment", 1)
+                paramTest(5) = StrComp((wsOld.Cells(k, 2).Value), "is single acknowledgment only", 1)
+                paramTest(6) = StrComp((wsOld.Cells(k, 2).Value), "Trigger horn", 1)
+                paramTest(7) = StrComp((wsOld.Cells(k, 2).Value), "Controls the central signaling device", 1)
+                paramTest(8) = StrComp((wsOld.Cells(k, 2).Value), "Archived", 1)
+                paramTest(9) = StrComp((wsOld.Cells(k, 2).Value), "will be archived", 1)
+                paramTest(10) = StrComp((wsOld.Cells(k, 2).Value), "Reported", 1)
+                paramTest(11) = StrComp((wsOld.Cells(k, 2).Value), "Is created on a negative edge", 1)
+                paramTest(12) = StrComp((wsOld.Cells(k, 2).Value), "Triggers an action", 1)
+                paramTest(13) = StrComp((wsOld.Cells(k, 2).Value), "Contains extended associated value data", 1)
+                paramTest(14) = StrComp((wsOld.Cells(k, 2).Value), "PLC Number//CPU Number", 1)
+                paramTest(15) = StrComp((wsOld.Cells(k, 2).Value), "Message Bit", 1)
+                paramTest(16) = StrComp((wsOld.Cells(k, 2).Value), "Message tag", 1)
+                paramTest(17) = StrComp((wsOld.Cells(k, 2).Value), "Message Tag", 1)
+                paramTest(18) = StrComp((wsOld.Cells(k, 2).Value), "Alarm text", 1)
+                paramTest(19) = StrComp((wsOld.Cells(k, 2).Value), "Point of error", 1)
 
                 'store parameters value
-                For l = 1 To 7
-                    If paramTest(l) Then
-                        oldTag(l + 2) = wsOld.Cells(k, 3).Value
-                    End If
+                For l = 1 To UBound(paramTest)
+                    'define array position for parameter
+                    Select Case l
+                        Case 1 To 3
+                            If paramTest(l) = 0 Then
+                                oldTag(l + 2) = wsOld.Cells(k, 3).Value
+                            End If
+                        Case 4 To 5
+                            If paramTest(l) = 0 Then
+                                oldTag(6) = wsOld.Cells(k, 3).Value
+                            End If
+                        Case 6 To 7
+                            If paramTest(l) = 0 Then
+                                oldTag(7) = wsOld.Cells(k, 3).Value
+                            End If
+                        Case 8 To 9
+                            If paramTest(l) = 0 Then
+                                oldTag(8) = wsOld.Cells(k, 3).Value
+                            End If
+                        Case 10 To 15
+                            If paramTest(l) = 0 Then
+                                oldTag(l - 1) = wsOld.Cells(k, 3).Value
+                            End If
+                        Case 16 To 17
+                            If paramTest(l) = 0 Then
+                                oldTag(15) = wsOld.Cells(k, 3).Value
+                            End If
+                        Case 18 To 20
+                            If paramTest(l) = 0 Then
+                                oldTag(l - 2) = wsOld.Cells(k, 3).Value
+                            End If
+                    End Select
                 Next l
             Next k
             
@@ -127,6 +166,7 @@ Sub Compare()
             'jump to next tag
             i = i + ((j - 1) - i)
         End If
+        
     Next i
     
     'comment*
@@ -146,7 +186,7 @@ Dim isNotPresent As Boolean
 Dim cellValue As String
 
 'get all rows
-lastRow = wsNew.Cells(Rows.Count, 1).End(xlUp).Row
+lastRow = (wsNew.Cells(Rows.Count, 1).End(xlUp).Row) + 1
 'set merker for compare check
 isNotPresent = True
 
@@ -163,9 +203,8 @@ For i = 1 To lastRow
         For j = (i + 1) To lastRow
             'check if next tag is the same as primary
             Dim sameVar: sameVar = StrComp((wsNew.Cells(j, 1).Value), cellValue, 1)
-            Dim stringTest As Integer: stringTest = StrComp(wsNew.Cells(j, 1), "Tag Management", 1)
             
-            If (IsEmpty(wsNew.Cells(j, 1)) = False) And sameVar <> 0 And stringTest <> 0 Then
+            If (IsEmpty(wsNew.Cells(j, 1)) = False) And sameVar <> 0 Then
                 nextRow = wsNew.Cells(j, 1).Row
             Exit For
             End If
@@ -173,9 +212,9 @@ For i = 1 To lastRow
         
         'define string for storing parameters
         Dim newTag() As String
-        ReDim newTag(1 To 9) As String
+        ReDim newTag(1 To 17) As String
         Dim paramTest() As Integer
-        ReDim paramTest(1 To 7) As Integer
+        ReDim paramTest(1 To 19) As Integer
 
         'store row # and name
         newTag(1) = wsNew.Cells(i, 1).Row
@@ -184,19 +223,59 @@ For i = 1 To lastRow
         'Check for wanted parameters
         For k = i To j - 1
             'define parameters
-            paramTest(1) = StrComp((wsOld.Cells(k, 2).Value), "Data Type", 1)
-            paramTest(2) = StrComp((wsOld.Cells(k, 2).Value), "Group", 1)
-            paramTest(3) = StrComp((wsOld.Cells(k, 2).Value), "Parameters", 1)
-            paramTest(4) = StrComp((wsOld.Cells(k, 2).Value), "Connection", 1)
-            paramTest(5) = StrComp((wsOld.Cells(k, 2).Value), "Channel", 1)
-            paramTest(6) = StrComp((wsOld.Cells(k, 2).Value), "Channel unit", 1)
-            paramTest(7) = StrComp((wsOld.Cells(k, 2).Value), "Unit", 1)
+            paramTest(1) = StrComp((wsNew.Cells(k, 2).Value), "Class", 1)
+            paramTest(2) = StrComp((wsNew.Cells(k, 2).Value), "Type", 1)
+            paramTest(3) = StrComp((wsNew.Cells(k, 2).Value), "Priority", 1)
+            paramTest(4) = StrComp((wsNew.Cells(k, 2).Value), "Requires acknowledgment", 1)
+            paramTest(5) = StrComp((wsNew.Cells(k, 2).Value), "is single acknowledgment only", 1)
+            paramTest(6) = StrComp((wsNew.Cells(k, 2).Value), "Trigger horn", 1)
+            paramTest(7) = StrComp((wsNew.Cells(k, 2).Value), "Controls the central signaling device", 1)
+            paramTest(8) = StrComp((wsNew.Cells(k, 2).Value), "Archived", 1)
+            paramTest(9) = StrComp((wsNew.Cells(k, 2).Value), "will be archived", 1)
+            paramTest(10) = StrComp((wsNew.Cells(k, 2).Value), "Reported", 1)
+            paramTest(11) = StrComp((wsNew.Cells(k, 2).Value), "Is created on a negative edge", 1)
+            paramTest(12) = StrComp((wsNew.Cells(k, 2).Value), "Triggers an action", 1)
+            paramTest(13) = StrComp((wsNew.Cells(k, 2).Value), "Contains extended associated value data", 1)
+            paramTest(14) = StrComp((wsNew.Cells(k, 2).Value), "PLC Number//CPU Number", 1)
+            paramTest(15) = StrComp((wsNew.Cells(k, 2).Value), "Message Bit", 1)
+            paramTest(16) = StrComp((wsNew.Cells(k, 2).Value), "Message tag", 1)
+            paramTest(17) = StrComp((wsNew.Cells(k, 2).Value), "Message Tag", 1)
+            paramTest(18) = StrComp((wsNew.Cells(k, 2).Value), "Alarm text", 1)
+            paramTest(19) = StrComp((wsNew.Cells(k, 2).Value), "Point of error", 1)
 
             'store parameters value
-            For l = 1 To 7
-                If paramTest(l) Then
-                    newTag(l + 2) = wsNew.Cells(k, 3).Value
-                End If
+            For l = 1 To 19
+                'define array position for parameter
+                Select Case l
+                    Case 1 To 3
+                        If paramTest(l) = 0 Then
+                            newTag(l + 2) = wsNew.Cells(k, 3).Value
+                        End If
+                    Case 4 To 5
+                        If paramTest(l) = 0 Then
+                            newTag(6) = wsNew.Cells(k, 3).Value
+                        End If
+                    Case 6 To 7
+                        If paramTest(l) = 0 Then
+                            newTag(7) = wsNew.Cells(k, 3).Value
+                        End If
+                    Case 8 To 9
+                        If paramTest(l) = 0 Then
+                            newTag(8) = wsNew.Cells(k, 3).Value
+                        End If
+                    Case 10 To 15
+                        If paramTest(l) = 0 Then
+                            newTag(l - 1) = wsNew.Cells(k, 3).Value
+                        End If
+                    Case 16 To 17
+                        If paramTest(l) = 0 Then
+                            newTag(15) = wsNew.Cells(k, 3).Value
+                        End If
+                    Case 18 To 20
+                        If paramTest(l) = 0 Then
+                            newTag(l - 2) = wsNew.Cells(k, 3).Value
+                        End If
+                End Select
             Next l
         Next k
         
@@ -213,8 +292,6 @@ For i = 1 To lastRow
         'function for compare created aray of old tag with new data base
         CheckBothParameters oldTag:=oldTag, newTag:=newTag 'define the old tag array
                 
-        'jump to next tag
-        'Exit For
     End If
 Next i
 
@@ -228,7 +305,7 @@ If isNotPresent Then
     'style
     wsResult.Cells(y, x).Interior.Color = yelColor
     wsResult.Cells(y + 1, x).Interior.Color = yelColor
-    For m = 1 To 9
+    For m = 1 To UBound(oldTag)
     
         wsResult.Cells(y, x + m) = oldTag(m)    'old tag
         wsResult.Cells(y + 1, x + m) = "?"  'new tag
@@ -236,7 +313,7 @@ If isNotPresent Then
         wsResult.Cells(y, x + m).Interior.Color = yelColor
         wsResult.Cells(y + 1, x + m).Interior.Color = yelColor
     Next m
-    
+
     y = y + 2
     z = z + 1
 End If
@@ -247,18 +324,24 @@ Function CheckBothParameters(ByRef oldTag() As String, ByRef newTag() As String)
     Dim nok As Boolean
     Dim i, compParam As Integer
     Dim nokParameters() As Boolean
-    ReDim nokParameters(1 To 9) As Boolean
+    ReDim nokParameters(1 To 17) As Boolean
     
     'set merker for compare check
     nok = False
     
     'check both arrays
-    For i = 3 To 9
+    For i = 3 To UBound(oldTag)
         compParam = StrComp(oldTag(i), newTag(i), 1)
-        If compParam <> 0 Then
-            nokParameters(i) = True
-            nok = True
-        End If
+        Select Case i
+            'exclude parameters:
+            Case 5, 12, 13
+                
+            Case Else
+                If compParam <> 0 Then
+                    nokParameters(i) = True
+                    nok = True
+                End If
+            End Select
     Next i
 
     'if they do not match
@@ -268,7 +351,8 @@ Function CheckBothParameters(ByRef oldTag() As String, ByRef newTag() As String)
         
         wsResult.Cells(y, x) = z    'old tag
         wsResult.Cells(y + 1, x) = z 'new tag
-        For j = 1 To 9
+
+        For j = 1 To 17            
             wsResult.Cells(y, x + j) = oldTag(j)   'old tag
             wsResult.Cells(y + 1, x + j) = newTag(j) 'new tag
             'style
@@ -277,7 +361,7 @@ Function CheckBothParameters(ByRef oldTag() As String, ByRef newTag() As String)
                 wsResult.Cells(y + 1, x + j).Interior.Color = redColor
             End If
         Next j
-        
+
         y = y + 2
         z = z + 1
     End If
@@ -291,11 +375,10 @@ Dim isNotPresent As Boolean
 Dim cellValue, testString1, testString2, testString3 As String
 
 'get all rows
-lastRow = wsNew.Cells(Rows.Count, 1).End(xlUp).Row
+lastRow = (wsNew.Cells(Rows.Count, 1).End(xlUp).Row) + 1
 
 For i = 1 To lastRow
-    cellValue = wsNew.Cells(i, 1).Value
-    
+    cellValue = wsNew.Cells(i, 1).Value    
     'set merker for compare check
     isNotPresent = True
     
@@ -304,22 +387,21 @@ For i = 1 To lastRow
         For j = 1 To lastRow
             Dim sameVar: sameVar = StrComp((wsOld.Cells(j, 1).Value), cellValue, 1)
 
-            'check if next tag is the same as primary
+            'if there is the same old tag
             If sameVar = 0 Then
-               isNotPresent = False
+               isNotPresent = False 'reset merker to exit function
             Exit For
             End If
         Next j
 
-        'if tags not match
+        'if there is no old tag
         If isNotPresent Then
             'get next tag position (to find the num of parameters)
             For k = (i + 1) To lastRow
                 'check if next tag is the same as primary
-                Dim sameVar: sameVar = StrComp((wsNew.Cells(k, 1).Value), cellValue, 1)
-                Dim stringTest As Integer: stringTest = StrComp(wsOld.Cells(j, 1), "Tag Management", 1)
+                Dim nextVar: nextVar = StrComp((wsNew.Cells(k, 1).Value), cellValue, 1)
                 
-                If (IsEmpty(wsOld.Cells(k, 1)) = False) And sameVar <> 0 And stringTest <> 0 Then
+                If (IsEmpty(wsNew.Cells(k, 1)) = False) And nextVar <> 0 Then
                     nextRow = wsNew.Cells(k, 1).Row
                 Exit For
                 End If
@@ -333,34 +415,79 @@ For i = 1 To lastRow
             wsResult.Cells(y, x + 2) = "?"  'old tag
             wsResult.Cells(y + 1, x + 2) = wsNew.Cells(i, 1).Value 'new tag
 
-            'definiraj string za shranjevanje parametrov
+            'define string to store parameters
             Dim paramTest() As Integer
-            ReDim paramTest(1 To 7) As Integer
+            ReDim paramTest(1 To 19) As Integer
 
             'Check for wanted parameters
             For l = i To k - 1
                 'define parameters
-                paramTest(1) = StrComp((wsOld.Cells(k, 2).Value), "Data Type", 1)
-                paramTest(2) = StrComp((wsOld.Cells(k, 2).Value), "Group", 1)
-                paramTest(3) = StrComp((wsOld.Cells(k, 2).Value), "Parameters", 1)
-                paramTest(4) = StrComp((wsOld.Cells(k, 2).Value), "Connection", 1)
-                paramTest(5) = StrComp((wsOld.Cells(k, 2).Value), "Channel", 1)
-                paramTest(6) = StrComp((wsOld.Cells(k, 2).Value), "Channel unit", 1)
-                paramTest(7) = StrComp((wsOld.Cells(k, 2).Value), "Unit", 1)
+                paramTest(1) = StrComp((wsNew.Cells(l, 2).Value), "Class", 1)
+                paramTest(2) = StrComp((wsNew.Cells(l, 2).Value), "Type", 1)
+                paramTest(3) = StrComp((wsNew.Cells(l, 2).Value), "Priority", 1)
+                paramTest(4) = StrComp((wsNew.Cells(l, 2).Value), "Requires acknowledgment", 1)
+                paramTest(5) = StrComp((wsNew.Cells(l, 2).Value), "is single acknowledgment only", 1)
+                paramTest(6) = StrComp((wsNew.Cells(l, 2).Value), "Trigger horn", 1)
+                paramTest(7) = StrComp((wsNew.Cells(l, 2).Value), "Controls the central signaling device", 1)
+                paramTest(8) = StrComp((wsNew.Cells(l, 2).Value), "Archived", 1)
+                paramTest(9) = StrComp((wsNew.Cells(l, 2).Value), "will be archived", 1)
+                paramTest(10) = StrComp((wsNew.Cells(l, 2).Value), "Reported", 1)
+                paramTest(11) = StrComp((wsNew.Cells(l, 2).Value), "Is created on a negative edge", 1)
+                paramTest(12) = StrComp((wsNew.Cells(l, 2).Value), "Triggers an action", 1)
+                paramTest(13) = StrComp((wsNew.Cells(l, 2).Value), "Contains extended associated value data", 1)
+                paramTest(14) = StrComp((wsNew.Cells(l, 2).Value), "PLC Number//CPU Number", 1)
+                paramTest(15) = StrComp((wsNew.Cells(l, 2).Value), "Message Bit", 1)
+                paramTest(16) = StrComp((wsNew.Cells(l, 2).Value), "Message tag", 1)
+                paramTest(17) = StrComp((wsNew.Cells(l, 2).Value), "Message Tag", 1)
+                paramTest(18) = StrComp((wsNew.Cells(l, 2).Value), "Alarm text", 1)
+                paramTest(19) = StrComp((wsNew.Cells(l, 2).Value), "Point of error", 1)
 
-                For m = 1 To 7
-                    'store parameters value
-                    If paramTest(m) Then
-                        wsResult.Cells(y, x + 2 + m) = "?"
-                        wsResult.Cells(y + 1, x + 2 + m) = wsNew.Cells(l, 3).Value
-                    End If
+                For m = 1 To UBound(paramTest)
+                    'define array position for parameter
+                    Select Case m   'check the parameters numbers - used for Select Case
+                        Case 1 To 3
+                            If paramTest(m) = 0 Then
+                                wsResult.Cells(y, x + 2 + m) = "?"
+                                wsResult.Cells(y + 1, x + 2 + m) = wsNew.Cells(l, 3).Value
+                            End If
+                        Case 4 To 5
+                            If paramTest(m) = 0 Then
+                                wsResult.Cells(y, x + 6) = "?"
+                                wsResult.Cells(y + 1, x + 6) = wsNew.Cells(l, 3).Value
+                            End If
+                        Case 6 To 7
+                            If paramTest(m) = 0 Then
+                                wsResult.Cells(y, x + 8) = "?"
+                                wsResult.Cells(y + 1, x + 8) = wsNew.Cells(l, 3).Value
+                            End If
+                        Case 8 To 9
+                            If paramTest(m) = 0 Then
+                                wsResult.Cells(y, x + 9) = "?"
+                                wsResult.Cells(y + 1, x + 9) = wsNew.Cells(l, 3).Value
+                            End If
+                        Case 10 To 15
+                            If paramTest(m) = 0 Then
+                                wsResult.Cells(y, x - 1 + m) = "?"
+                                wsResult.Cells(y + 1, x - 1 + m) = wsNew.Cells(l, 3).Value
+                            End If
+                        Case 16 To 17
+                            If paramTest(m) = 0 Then
+                                wsResult.Cells(y, x + 15) = "?"
+                                wsResult.Cells(y + 1, x + 15) = wsNew.Cells(l, 3).Value
+                            End If
+                        Case 18 To 20
+                            If paramTest(m) = 0 Then
+                                wsResult.Cells(y, x - 2 + m) = "?"
+                                wsResult.Cells(y + 1, x - 2 + m) = wsNew.Cells(l, 3).Value
+                            End If
+                    End Select
                 Next m
             Next l
                
             'style
             wsResult.Cells(y, x).Interior.Color = bluColor
             wsResult.Cells(y + 1, x).Interior.Color = bluColor
-            For n = 1 To 9
+            For n = 1 To 18
                 'style
                 wsResult.Cells(y, x + n).Interior.Color = bluColor
                 wsResult.Cells(y + 1, x + n).Interior.Color = bluColor
@@ -381,16 +508,13 @@ Dim lastRow As Integer
 Application.Calculation = xlCalculationManual
 Application.ScreenUpdating = False
 
-lastRow = ActiveSheet.Cells(Rows.Count, 1).End(xlUp).Row
+lastRow = (ActiveSheet.Cells(Rows.Count, 1).End(xlUp).Row) + 1
 
 If lastRow <= 13 Then
     MsgBox "Table Empty"
 End If
 
-'ActiveSheet.Cells(9, 2).Delete
-'ActiveSheet.Cells(10, 2).Delete
-
-Do While lastRow >= 13  'preskakuje vrstice
+Do While lastRow >= 13  'it jumps rows when deleting *find better solution
     For i = 13 To lastRow 'define the data start row
         ActiveSheet.Cells(i, 1).EntireRow.Delete
     Next i
